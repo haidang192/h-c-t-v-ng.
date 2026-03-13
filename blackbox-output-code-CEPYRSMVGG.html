@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Từ Vựng Tiếng Đức</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 { color: #333; font-size: 1.5rem; margin-bottom: 20px; }
+        .progress { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+        .word-viet {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: #3498db; }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+        .btn:hover { background-color: #2980b9; }
+        .btn-check { background-color: #2ecc71; }
+        .btn-check:hover { background-color: #27ae60; }
+        .btn-next { background-color: #95a5a6; display: none; }
+        .btn-next:hover { background-color: #7f8c8d; }
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .correct { color: #27ae60; }
+        .wrong { color: #e74c3c; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ôn tập từ vựng</h1>
+    <div class="progress" id="progress">Câu 1 / 39</div>
+    
+    <div class="word-viet" id="vietWord">Đang tải...</div>
+    
+    <input type="text" id="gerInput" placeholder="Nhập từ tiếng Đức..." autocomplete="off">
+    
+    <div>
+        <button class="btn btn-check" onclick="checkAnswer()">Kiểm tra</button>
+        <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">Câu tiếp theo</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+    // Dữ liệu từ vựng của bạn
+    const vocabulary = [
+        { viet: "dễ mến", ger: "sympathisch" },
+        { viet: "năng động", ger: "aktiv" },
+        { viet: "lười", ger: "faul" },
+        { viet: "thú vị", ger: "spannend" },
+        { viet: "không đáng tin cậy", ger: "unzuverlässig" },
+        { viet: "vui / buồn cười / hài hước", ger: "lustig" },
+        { viet: "giỏi/thích thể thao", ger: "sportlich" },
+        { viet: "không hài hước", ger: "humorlos" },
+        { viet: "nhàm chán", ger: "langweilig" },
+        { viet: "tốt bụng", ger: "nett" },
+        { viet: "khó ưa", ger: "unsympathisch" },
+        { viet: "đáng tin cậy", ger: "zuverlässig" },
+        { viet: "trung thực", ger: "ehrlich" },
+        { viet: "không giỏi thể thao", ger: "unsportlich" },
+        { viet: "hài hước", ger: "humorvoll" },
+        { viet: "thân thiện", ger: "freundlich" },
+        { viet: "không đúng giờ", ger: "unpünktlich" },
+        { viet: "đúng giờ", ger: "pünktlich" },
+        { viet: "dùng bữa (lịch sự hơn essen)", ger: "speisen" },
+        { viet: "tuyệt vời", ger: "wunderbar" },
+        { viet: "đặc điểm", ger: "eigenschaften" },
+        { viet: "đánh giá", ger: "bewerten" },
+		{ viet: "hơn", ger: "mehr" },
+		{ viet: "có lẽ", ger: "vielleicht" },
+		{ viet: "lịch hẹn, cuộc hẹn", ger: "der Termin" },
+		{ viet: "thời khóa biểu", ger: "Stundenplan" },
+		{ viet: "tham gia vào hoạt động nào đó", ger: "teilnehmen an dativ" },
+		{ viet: "nhìn vào", ger: "anschauen" },
+		{ viet: "dàn nhạc của trường", ger: "das Schulorchester" },
+		{ viet: "từ vựng", ger: "die Vokabel" },
+		{ viet: "kể", ger: "erzählen" },
+		{ viet: "câu chuyện", ger: "die Geschichte" },
+		{ viet: "môn học", ger: "das Fach" },
+		{ viet: "các môn học", ger: "die Fächer" },
+		{ viet: "tiểu học", ger: "die Grundschule" },
+		{ viet: "trung học cơ sở", ger: "die Mittelschule" },
+		{ viet: "trung học phổ thông", ger: "das Gymnasium" },
+		{ viet: "trường tổng hợp", ger: "die Gesamtschule" },
+        { viet: "buồn", ger: "traurig" }
+    ];
+
+    let currentIndex = 0;
+    let shuffledVocab = [];
+    let isTransitioning = false;
+
+    // Hàm xáo trộn danh sách
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function initGame() {
+        shuffledVocab = shuffleArray([...vocabulary]);
+        currentIndex = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const item = shuffledVocab[currentIndex];
+        document.getElementById('vietWord').innerText = item.viet;
+        document.getElementById('gerInput').value = "";
+        document.getElementById('gerInput').focus();
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('feedback').className = "feedback";
+        document.getElementById('nextBtn').style.display = "none";
+        document.getElementById('progress').innerText = `Câu ${currentIndex + 1} / ${shuffledVocab.length}`;
+        isTransitioning = false;
+    }
+
+    function checkAnswer() {
+        if (isTransitioning) return; // Ngăn click khi đang chuyển câu
+
+        const input = document.getElementById('gerInput').value.trim().toLowerCase();
+        const correct = shuffledVocab[currentIndex].ger.toLowerCase();
+        const feedback = document.getElementById('feedback');
+
+        if (input === correct) {
+            feedback.innerText = "Chính xác! 🎉";
+            feedback.className = "feedback correct";
+            isTransitioning = true;
+            // Tự động chuyển câu sau 1 giây
+            setTimeout(() => {
+                nextQuestion();
+            }, 1000);
+        } else {
+            feedback.innerText = `Sai rồi. Đáp án đúng là: ${correct}`;
+            feedback.className = "feedback wrong";
+            // Không disable input, người dùng có thể sửa lại
+        }
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < shuffledVocab.length) {
+            loadQuestion();
+        } else {
+            document.querySelector('.container').innerHTML = `
+                <h1>Hoàn thành! 🎉</h1>
+                <p>Bạn đã học xong tất cả các từ vựng.</p>
+                <button class="btn" onclick="initGame()">Học lại từ đầu</button>
+            `;
+        }
+    }
+
+    // Cho phép nhấn Enter để kiểm tra
+    document.getElementById("gerInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            checkAnswer();
+        }
+    });
+
+    // Bắt đầu game
+    initGame();
+</script>
+
+</body>
+</html>
